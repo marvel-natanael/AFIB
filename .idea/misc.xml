@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/AFIB/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_heart_rate.xml" value="0.20729166666666668" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_main.xml" value="0.17299898682877407" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_open_cvtest.xml" value="0.18072916666666666" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/menu/menu.xml" value="0.20625" />
       </map>
     </option>
   </component>

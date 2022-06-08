@@ -1,13 +1,11 @@
 package com.example.afib
 
 import android.content.pm.PackageManager
-import android.media.Image
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.camera.camera2.internal.annotation.CameraExecutor
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -16,8 +14,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.afib.databinding.ActivityMainBinding
+import org.opencv.android.OpenCVLoader
 import java.io.File
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -37,6 +35,10 @@ class MainActivity : AppCompatActivity() {
 
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        if (OpenCVLoader.initDebug()) {
+            Log.d("myTag", "OpenCV loaded")
+        }
 
         if(allPermissionGranted())
         {

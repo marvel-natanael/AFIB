@@ -29,10 +29,7 @@
     "intermediatesFolder": "D:\\ProjectAndroid\\AFIB\\sdk\\build\\intermediates\\cxx\\Debug\\p151101l",
     "isDebuggableEnabled": true,
     "validAbiList": [
-      "ARMEABI_V7A",
-      "ARM64_V8A",
-      "X86",
-      "X86_64"
+      "ARM64_V8A"
     ],
     "buildTargetSet": [
       "opencv_jni_shared"
@@ -133,6 +130,7 @@
         "rootBuildGradleFolder": "D:\\ProjectAndroid\\AFIB",
         "sdkFolder": "C:\\Users\\Febrian\\AppData\\Local\\Android\\Sdk",
         "isBuildOnlyTargetAbiEnabled": true,
+        "ideBuildTargetAbi": "arm64-v8a,armeabi-v7a,armeabi",
         "isCmakeBuildCohabitationEnabled": false,
         "isPrefabEnabled": false
       },

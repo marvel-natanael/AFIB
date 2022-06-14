@@ -18,7 +18,7 @@ class ChartDrawer(private val chartTextureView: TextureView) {
         paint.strokeWidth = 2f
 
         fillWhite.style = Paint.Style.FILL
-        fillWhite.color = Color.BLACK
+        fillWhite.color = Color.WHITE
 
         val chartCanvas = chartTextureView.lockCanvas() ?: return
         chartCanvas.drawPaint(fillWhite)

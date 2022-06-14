@@ -61,4 +61,9 @@ dependencies {
 
     implementation 'com.github.FebrianDev:FLog:v1.0.0'
 
+    implementation 'com.karumi:dexter:6.2.3'
+
+    //frames
+    implementation 'com.github.iammert:Frames:0.3'
+
 }

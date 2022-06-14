@@ -30,7 +30,7 @@ class OutputAnalyzer(
 
     private val measurementInterval: Long = 45
     private val measurementLength: Long =
-        10000 // ensure the number of data points is the power of two
+        30000 // ensure the number of data points is the power of two
 
     private val clipLength = 100
 
@@ -111,9 +111,12 @@ class OutputAnalyzer(
                             detectedValleys,
                             1f * (measurementLength - millisUntilFinished - clipLength) / 1000f
                         )
+
                         sendMessage(MESSAGE_UPDATE_REALTIME, currentValue)
                     }
+
                     Flog.d("Chart")
+
                     // draw chart
                     val chartDrawerThread =
                         Thread {

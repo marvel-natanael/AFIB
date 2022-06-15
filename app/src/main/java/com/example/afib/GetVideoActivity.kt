@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
@@ -13,12 +14,16 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.afib.databinding.ActivityGetVideoBinding
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import org.opencv.android.OpenCVLoader
+import org.opencv.android.Utils
+import org.opencv.core.*
+import org.opencv.imgproc.Imgproc
+import org.opencv.imgproc.Imgproc.rectangle
 
 
 class GetVideoActivity : AppCompatActivity() {
@@ -35,6 +40,8 @@ class GetVideoActivity : AppCompatActivity() {
         setContentView(binding.root)
         retriever = MediaMetadataRetriever()
         requestMultiplePermissions()
+
+        OpenCVLoader.initDebug();
 
         binding.start.setOnClickListener {
             showPictureDialog()
@@ -91,8 +98,9 @@ class GetVideoActivity : AppCompatActivity() {
                 Log.d("path", selectedVideoPath!!)
 
                 retriever.setDataSource(selectedVideoPath);
+                val bitmap: Bitmap = retriever.frameAtTime!!
                 binding.result.setImageBitmap(
-                    retriever.frameAtTime
+                    bitmap
                 )
 
                 /* val multiFrameRequest = FrameRetrieveRequest.MultipleFrameRequest(
@@ -132,28 +140,59 @@ class GetVideoActivity : AppCompatActivity() {
                      orientation = LinearLayout.HORIZONTAL
                  )*/
 
-                val time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                var timeInMillisec = time!!.toLong()
+                /* val time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                 var timeInMillisec = time!!.toLong()
 
-                while (timeInMillisec >= 33) {
-                    log("Time : " + timeInMillisec)
-                    listBitmap.add(retriever.getFrameAtTime(33)!!)
-                    timeInMillisec -= 33
-                }
+                 while (timeInMillisec >= 33) {
+                     log("Time : " + timeInMillisec)
+                     listBitmap.add(retriever.getFrameAtTime(33)!!)
+                     timeInMillisec -= 33
+                 }
 
-                frameAdapter = FrameImageAdapter(listBitmap)
+                 frameAdapter = FrameImageAdapter(listBitmap)
 
-                binding.rv.apply {
-                    layoutManager = LinearLayoutManager(
-                        this@GetVideoActivity,
-                        LinearLayoutManager.HORIZONTAL,
-                        false
-                    )
-                    this.adapter = frameAdapter
-                }
+                 binding.rv.apply {
+                     layoutManager = LinearLayoutManager(
+                         this@GetVideoActivity,
+                         LinearLayoutManager.HORIZONTAL,
+                         false
+                     )
+                     this.adapter = frameAdapter
+                 }*/
 
+                binding.newImage.setImageBitmap(findRoi(bitmap))
             }
         }
+
+
+    private fun findRoi(bitmap: Bitmap): Bitmap {
+        val x = 0.0
+        val y = 0.0
+        val width = ((bitmap.width) / 2).toDouble()
+        val height = (bitmap.height / 3).toDouble()
+
+        val sourceMat = Mat(bitmap.width, bitmap.height, CvType.CV_8UC3)
+        sourceMat.clone()
+        val green = Scalar(0.0, 255.0, 0.0, 255.0)
+        Utils.bitmapToMat(bitmap, sourceMat)
+        for (i in 1..2) {
+            for (j in 1..3) {
+                rectangle(
+                    sourceMat,
+                    Point(x + (width * (i - 1)), y + (height * (j - 1))),
+                    Point(width * i, height * j),
+                    green,
+                    3
+                )
+            }
+        }
+        val roiBitmap =
+            Bitmap.createBitmap(sourceMat.cols(), sourceMat.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(sourceMat, roiBitmap)
+
+
+        return roiBitmap!!
+    }
 
     private fun log(message: String) {
         Log.d("AFIB", message)

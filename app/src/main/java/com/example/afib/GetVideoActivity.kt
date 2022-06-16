@@ -4,14 +4,16 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.afib.databinding.ActivityGetVideoBinding
@@ -21,8 +23,10 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
-import org.opencv.core.*
-import org.opencv.imgproc.Imgproc
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.Point
+import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc.rectangle
 
 
@@ -34,6 +38,7 @@ class GetVideoActivity : AppCompatActivity() {
 
     private val listBitmap = ArrayList<Bitmap>()
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGetVideoBinding.inflate(layoutInflater)
@@ -48,6 +53,7 @@ class GetVideoActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun showPictureDialog() {
         val pictureDialog = AlertDialog.Builder(this)
         pictureDialog.setTitle("Select Action")
@@ -63,6 +69,7 @@ class GetVideoActivity : AppCompatActivity() {
         pictureDialog.show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun chooseVideoFromGallery() {
         val galleryIntent = Intent(
             Intent.ACTION_PICK,
@@ -74,6 +81,7 @@ class GetVideoActivity : AppCompatActivity() {
         activityResult.launch(galleryIntent)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun takeVideoFromCamera() {
         val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
 
@@ -82,6 +90,7 @@ class GetVideoActivity : AppCompatActivity() {
         activityResult.launch(intent)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private val activityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_CANCELED) {
@@ -159,12 +168,50 @@ class GetVideoActivity : AppCompatActivity() {
                      )
                      this.adapter = frameAdapter
                  }*/
-
+                //  getColors(bitmap)
                 binding.newImage.setImageBitmap(findRoi(bitmap))
             }
         }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun getColors(bitmap: Bitmap): Bitmap {
+        for (i in 0 until bitmap.width) {
+            for (j in 0 until bitmap.height) {
+                val color: Color = bitmap.getColor(i, j)
+                val red: Float = color.red()
+                log(red.toString())
 
+                if (red <= 0.7) {
+                    log("Black " + red.toString())
+                    //   Imgproc.cvtColor(sourceMat, dst, COLORMAP_AUTUMN)
+                    //set color black
+                    bitmap.setPixel(i, j, Color.BLACK)
+                } else {
+                    log("Red " + red.toString())
+                    //set color red
+                    bitmap.setPixel(i, j, Color.RED)
+                }
+            }
+        }
+
+        return bitmap
+    }
+
+    private fun setRoi(
+        x: Double,
+        y: Double,
+        width: Double,
+        height: Double,
+        green: Scalar,
+        sourceMat: Mat
+    ) {
+        val pxy = Point(x, y)
+        val pwh = Point(width, height)
+
+        rectangle(sourceMat, pxy, pwh, green, 3)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun findRoi(bitmap: Bitmap): Bitmap {
         val x = 0.0
         val y = 0.0
@@ -175,24 +222,106 @@ class GetVideoActivity : AppCompatActivity() {
         sourceMat.clone()
         val green = Scalar(0.0, 255.0, 0.0, 255.0)
         Utils.bitmapToMat(bitmap, sourceMat)
-        for (i in 1..2) {
-            for (j in 1..3) {
-                rectangle(
-                    sourceMat,
-                    Point(x + (width * (i - 1)), y + (height * (j - 1))),
-                    Point(width * i, height * j),
-                    green,
-                    3
-                )
-            }
-        }
+
+        setRoi(x, y, width, height, green, sourceMat)
+        setRoi(x + width, y, width * 2, height * 2, green, sourceMat)
+        setRoi(x, y + height * 2, width, height * 3, green, sourceMat)
+        setRoi(x + width, y, width * 2, height, green, sourceMat)
+        setRoi(x, y + height, width, height * 2, green, sourceMat)
+        setRoi(x + width, y + height * 2, width * 2, height * 3, green, sourceMat)
+
+        /* val pxy1 = Point(x, y)
+         val pwh1 = Point(width, height)
+
+         val pxy2 = Point(x + width, y)
+         val pwh2 = Point(width * 2, height * 2)
+
+         val pxy3 = Point(x, y + height * 2)
+         val pwh3 = Point(width, height *3)
+
+         val pxy4 = Point(x + width, y)
+         val pwh4 = Point(width * 2, height)
+
+         val pxy5 = Point(x, y + height)
+         val pwh5 = Point(width, height * 2)
+
+         val pxy6 = Point(x + width, y + height * 2)
+         val pwh6 = Point(width * 2, height *3)
+
+         rectangle(sourceMat, pxy6, pwh6, green, 3)*/
+
         val roiBitmap =
             Bitmap.createBitmap(sourceMat.cols(), sourceMat.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(sourceMat, roiBitmap)
 
+        var pixelCount = 0
+
+        var total = 0f
+        var color: Color? = null
+        var red: Float? = null
+
+        var listTotal = ArrayList<Float>()
+
+        for (i in 0 until bitmap.width) {
+            for (j in 0 until bitmap.height) {
+                pixelCount++
+                color = roiBitmap.getColor(i, j)
+                red = color.red()
+
+                listTotal.add(red)
+
+                // log("Total $total")
+
+                /* log(red.toString())
+
+                 if (red <= 0.7) {
+                     log("Black $red")
+                     //   Imgproc.cvtColor(sourceMat, dst, COLORMAP_AUTUMN)
+                     //set color black
+                     roiBitmap.setPixel(i, j, Color.BLACK)
+                 } else {
+                     log("Red $red")
+                     //set color red
+                     roiBitmap.setPixel(i, j, Color.RED)
+
+                 }*/
+
+            }
+        }
+
+        val avg = listTotal.sum() / (bitmap.width * bitmap.height)
+
+        log("AVG $avg")
+
+        /*  var listRoi = Array(2) { IntArray(3) { 0 } }
+
+          for (i in 1..2) {
+              for (j in 1..3) {
+                  var count = 1
+                  var areaRoi = (bitmap.width / 2) * (bitmap.height / 3)
+
+                  listRoi[i][j] = roiBitmap.setPixel()
+
+                  log("Total $count : $total")
+                  count += 1
+              }
+          }
+
+          for (x in 0 until bitmap.width / 2) {
+              for (y in 0 until bitmap.height / 3) {
+
+                  // total
+                  val color = roiBitmap.getColor(x, y)
+                  val red: Float = color.red()
+
+                  total += red
+              }
+          }
+  */
 
         return roiBitmap!!
     }
+
 
     private fun log(message: String) {
         Log.d("AFIB", message)

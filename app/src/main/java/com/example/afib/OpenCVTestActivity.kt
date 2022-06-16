@@ -8,9 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.afib.databinding.ActivityOpenCvtestBinding
 import org.opencv.android.*
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame
+import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.core.Scalar
+import org.opencv.dnn.Dnn
 import org.opencv.imgproc.Imgproc
 import java.util.*
 

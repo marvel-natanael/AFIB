@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.afib.data.Roi
 import com.example.afib.databinding.ActivityGetVideoBinding
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -28,6 +29,7 @@ import org.opencv.core.Mat
 import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc.rectangle
+import kotlin.math.absoluteValue
 
 
 class GetVideoActivity : AppCompatActivity() {
@@ -37,6 +39,8 @@ class GetVideoActivity : AppCompatActivity() {
     private lateinit var frameAdapter: FrameImageAdapter
 
     private val listBitmap = ArrayList<Bitmap>()
+    private val listAverage = ArrayList<Float>()
+    private val keyMap = HashMap<Int, Roi>()
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,7 +120,6 @@ class GetVideoActivity : AppCompatActivity() {
                      videoPath = selectedVideoPath,
                      durationPerFrame = 33
                  )
-
                  Frames
                      .load(multiFrameRequest)
                      .into { framesResource ->
@@ -129,7 +132,6 @@ class GetVideoActivity : AppCompatActivity() {
                              )
                              Status.COMPLETED -> {
                                  log("Completed: ${framesResource.frames.size} ${System.currentTimeMillis()}")
-
                                  log(
                                      framesResource.frames[100].bitmap!!.toDrawable(resources)
                                          .toString()
@@ -137,13 +139,11 @@ class GetVideoActivity : AppCompatActivity() {
                                  framesResource.frames.forEach { data ->
                                      listBitmap.add(data.bitmap!!)
                                  }
-
                                  frameAdapter.notifyDataSetChanged()
                                  //binding.result.setImageBitmap(framesResource.frames[100].bitmap)
                              }
                          }
                      }
-
                  Frames.load(multiFrameRequest).into(
                      videoFramesLayout = binding.layoutFramesLayout,
                      orientation = LinearLayout.HORIZONTAL
@@ -151,15 +151,12 @@ class GetVideoActivity : AppCompatActivity() {
 
                 /* val time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                  var timeInMillisec = time!!.toLong()
-
                  while (timeInMillisec >= 33) {
                      log("Time : " + timeInMillisec)
                      listBitmap.add(retriever.getFrameAtTime(33)!!)
                      timeInMillisec -= 33
                  }
-
                  frameAdapter = FrameImageAdapter(listBitmap)
-
                  binding.rv.apply {
                      layoutManager = LinearLayoutManager(
                          this@GetVideoActivity,
@@ -197,18 +194,80 @@ class GetVideoActivity : AppCompatActivity() {
         return bitmap
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun setRoi(
         x: Double,
         y: Double,
         width: Double,
         height: Double,
         green: Scalar,
-        sourceMat: Mat
+        sourceMat: Mat,
+        bitmap: Bitmap,
+        index: Int,
     ) {
         val pxy = Point(x, y)
         val pwh = Point(width, height)
+        val listTotal = ArrayList<Float>()
+        for (i in x.toInt() until width.toInt()) {
+            for (j in y.toInt() until height.toInt()) {
+                val color = bitmap.getColor(i, j)
+                val red = color.red()
+                if (red <= 0.8) {
+                    //set black
+                    bitmap.setPixel(i, j, Color.BLACK)
+                } else {
+                    /*set red*/
+                    listTotal.add(red)
+                    bitmap.setPixel(i, j, Color.RED)
+                }
+            }
+        }
+
+        val average = listTotal.sum() / ((bitmap.width / 2) * (bitmap.height / 3))
+        listAverage.add(average)
+        keyMap.put(index, Roi(x, y, width, height, average))
+        log("Average $average")
 
         rectangle(sourceMat, pxy, pwh, green, 3)
+    }
+
+    private fun getPInit(): Float {
+        return listAverage.minBy { (it - 0.5).absoluteValue }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun setRoi(bitmap: Bitmap) {
+
+        var roi = Roi()
+
+        keyMap.values.forEach {
+            log("Key Map ${it.average} PIni ${getPInit()}")
+            if (it.average == getPInit()) {
+                // keyMap.clear()
+                roi = it
+
+                log("OKE")
+            }
+        }
+
+        log("Average2 ${roi.average}")
+
+        val width = roi.width!!.toInt()
+        val height = roi.height!!.toInt()
+        val x = roi.x!!.toInt()
+        val y = roi.y!!.toInt()
+
+        log("Width $width $height $x $y")
+
+        val crop = Bitmap.createBitmap(
+            bitmap,
+            x,
+            y,
+            bitmap.width/2,
+            bitmap.height/3
+        )
+
+        binding.crop.setImageBitmap(crop)
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -223,101 +282,20 @@ class GetVideoActivity : AppCompatActivity() {
         val green = Scalar(0.0, 255.0, 0.0, 255.0)
         Utils.bitmapToMat(bitmap, sourceMat)
 
-        setRoi(x, y, width, height, green, sourceMat)
-        setRoi(x + width, y, width * 2, height * 2, green, sourceMat)
-        setRoi(x, y + height * 2, width, height * 3, green, sourceMat)
-        setRoi(x + width, y, width * 2, height, green, sourceMat)
-        setRoi(x, y + height, width, height * 2, green, sourceMat)
-        setRoi(x + width, y + height * 2, width * 2, height * 3, green, sourceMat)
-
-        /* val pxy1 = Point(x, y)
-         val pwh1 = Point(width, height)
-
-         val pxy2 = Point(x + width, y)
-         val pwh2 = Point(width * 2, height * 2)
-
-         val pxy3 = Point(x, y + height * 2)
-         val pwh3 = Point(width, height *3)
-
-         val pxy4 = Point(x + width, y)
-         val pwh4 = Point(width * 2, height)
-
-         val pxy5 = Point(x, y + height)
-         val pwh5 = Point(width, height * 2)
-
-         val pxy6 = Point(x + width, y + height * 2)
-         val pwh6 = Point(width * 2, height *3)
-
-         rectangle(sourceMat, pxy6, pwh6, green, 3)*/
-
         val roiBitmap =
             Bitmap.createBitmap(sourceMat.cols(), sourceMat.rows(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(sourceMat, roiBitmap)
 
-        var pixelCount = 0
+        setRoi(x, y, width, height, green, sourceMat, roiBitmap, 0)
+        setRoi(x + width, y, width * 2, height, green, sourceMat, roiBitmap, 1)
+        setRoi(x, y + height, width, height * 2, green, sourceMat, roiBitmap, 2)
+        setRoi(x + width, y + height, width * 2, height * 2, green, sourceMat, roiBitmap, 3)
+        setRoi(x, y + height * 2, width, height * 3, green, sourceMat, roiBitmap, 4)
+        setRoi(x + width, y + height * 2, width * 2, height * 3, green, sourceMat, roiBitmap, 5)
 
-        var total = 0f
-        var color: Color? = null
-        var red: Float? = null
+        log("Absolute ${getPInit()}")
 
-        var listTotal = ArrayList<Float>()
-
-        for (i in 0 until bitmap.width) {
-            for (j in 0 until bitmap.height) {
-                pixelCount++
-                color = roiBitmap.getColor(i, j)
-                red = color.red()
-
-                listTotal.add(red)
-
-                // log("Total $total")
-
-                /* log(red.toString())
-
-                 if (red <= 0.7) {
-                     log("Black $red")
-                     //   Imgproc.cvtColor(sourceMat, dst, COLORMAP_AUTUMN)
-                     //set color black
-                     roiBitmap.setPixel(i, j, Color.BLACK)
-                 } else {
-                     log("Red $red")
-                     //set color red
-                     roiBitmap.setPixel(i, j, Color.RED)
-
-                 }*/
-
-            }
-        }
-
-        val avg = listTotal.sum() / (bitmap.width * bitmap.height)
-
-        log("AVG $avg")
-
-        /*  var listRoi = Array(2) { IntArray(3) { 0 } }
-
-          for (i in 1..2) {
-              for (j in 1..3) {
-                  var count = 1
-                  var areaRoi = (bitmap.width / 2) * (bitmap.height / 3)
-
-                  listRoi[i][j] = roiBitmap.setPixel()
-
-                  log("Total $count : $total")
-                  count += 1
-              }
-          }
-
-          for (x in 0 until bitmap.width / 2) {
-              for (y in 0 until bitmap.height / 3) {
-
-                  // total
-                  val color = roiBitmap.getColor(x, y)
-                  val red: Float = color.red()
-
-                  total += red
-              }
-          }
-  */
+        setRoi(roiBitmap)
 
         return roiBitmap!!
     }
@@ -372,7 +350,7 @@ class GetVideoActivity : AppCompatActivity() {
 
                 override fun onPermissionRationaleShouldBeShown(
                     p0: MutableList<com.karumi.dexter.listener.PermissionRequest>?,
-                    p1: PermissionToken?
+                    p1: PermissionToken?,
                 ) {
                     p1!!.continuePermissionRequest()
                 }

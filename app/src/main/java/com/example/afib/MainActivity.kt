@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         if(allPermissionGranted())
         {
-            startCamera()
+            //startCamera()
         }
         else
         {
@@ -53,7 +53,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.buttonTakePhoto.setOnClickListener{
-            takePhoto()
+            //takePhoto()
+            startCamera()
         }
     }
 

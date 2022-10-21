@@ -5,9 +5,13 @@
     <uses-feature android:name="android.hardware.camera.any" />
 
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -26,11 +30,13 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AFIB">
         <activity
-            android:name=".GetVideoActivity"
+            android:name=".ui.GetFrameVideoActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,13 +45,28 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".service.HeartRateActivity"
+            android:name=".ui.ResultHaveAFIBActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.ResultActivity"
+            android:exported="true"></activity>
+        <activity
+            android:name=".ui.VideoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.ScanActivity"
             android:exported="true">
 
         </activity>
         <activity
+            android:name=".GetVideoActivity"
+            android:exported="true" />
+        <activity
+            android:name=".service.HeartRateActivity"
+            android:exported="true" />
+        <activity
             android:name=".OpenCVTestActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true" />

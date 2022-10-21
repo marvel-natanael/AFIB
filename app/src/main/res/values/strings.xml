@@ -16,6 +16,7 @@
     <string name="output_header_template">Heart rate on %s</string>
     <string name="dateFormat">yyyy-MM-dd\'T\'HH:mm:ssZZZZZ</string>
     <string name="cameraPermissionRequired">Camera permission is required for this application to work.</string>
+    <string name="start_capture">Take Video</string>
 
     <plurals name="measurement_output_template">
         <item quantity="zero">Pulse: %2.1f (%d cycle in %2.1f seconds)</item>

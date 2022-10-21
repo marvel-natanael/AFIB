@@ -236,10 +236,10 @@ class GetVideoActivity : AppCompatActivity() {
         chart.xAxis.setDrawGridLines(false)
         chart.axisLeft.setDrawAxisLine(false)
 
-        chart.xAxis.textColor = resources.getColor(R.color.black)
+        chart.xAxis.textColor = resources.getColor(android.R.color.black)
         chart.xAxis.textSize = 12f
 
-        chart.axisLeft.textColor = resources.getColor(R.color.black)
+        chart.axisLeft.textColor = resources.getColor(android.R.color.black)
         chart.axisLeft.textSize = 12f
 
         //Setup Legend

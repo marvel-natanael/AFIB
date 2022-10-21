@@ -5,10 +5,21 @@
       <map>
         <entry key="..\:/AFIB/app/src/main/res/layout/activity_get_video.xml" value="0.1" />
         <entry key="..\:/AFIB/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/drawable/bg.xml" value="0.217" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/drawable/bg_circle.xml" value="0.217" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/drawable/circular_bar.xml" value="0.189" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/drawable/circular_shape.xml" value="0.188" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/drawable/ic_baseline_arrow_back_ios_new_24.xml" value="0.176" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.176" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_get_frame_video.xml" value="0.1359375" />
         <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_get_video.xml" value="0.2796875" />
         <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_heart_rate.xml" value="0.20729166666666668" />
         <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_main.xml" value="0.17299898682877407" />
         <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_open_cvtest.xml" value="0.18072916666666666" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_result.xml" value="0.1625" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_result_have_afibactivity.xml" value="0.13999999999999999" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_scan.xml" value="0.18072916666666666" />
+        <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/activity_video.xml" value="0.2328125" />
         <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/layout/item_frame.xml" value="0.30833333333333335" />
         <entry key="..\:/ProjectAndroid/AFIB/app/src/main/res/menu/menu.xml" value="0.20625" />
       </map>

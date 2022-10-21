@@ -1,0 +1,2 @@
+ninja: Entering directory `D:\ProjectAndroid\AFIB\sdk\.cxx\Debug\1u1z1d1g\x86_64'
+ninja: no work to do.
